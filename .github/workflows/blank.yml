@@ -99,22 +99,22 @@ jobs:
         run: |
           lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
           if [ "$lowercase_crate_name" == "loco-cli" ]; then
-            echo "loco"
+            echo "CRATE_NAME_ENV=loco" >> $GITHUB_ENV
           #elif [ "$lowercase_crate_name" == "sqlx" ]; then
-          #  echo "sqlx"
+          #  echo "CRATE_NAME_ENV=sqlx" >> $GITHUB_ENV
           else
-            echo "$lowercase_crate_name"
+            echo "CRATE_NAME_ENV=$lowercase_crate_name" >> $GITHUB_ENV
           fi
-        env:
-          ARTIFACT_PATH: ${{ steps.determine_crate_name.outputs.stdout }}
+       
           
       - name: Copy files
         run: |
           mkdir -p combined_artifacts
-          cp -rfv ~/.cargo/bin/${{ env.ARTIFACT_PATH }} combined_artifacts/${{ env.ARTIFACT_PATH }}
+          echo ${{ env.CRATE_NAME_ENV }}
+          cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
 
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: 'Combined Airtifacts'
-          path: ./combined_artifacts/${{ env.ARTIFACT_PATH }}
+          path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
