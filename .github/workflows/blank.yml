@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    - cron: '59 23 28-31 * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -53,60 +55,58 @@ jobs:
         run: |
           mkdir -p combined_artifacts
           cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
-          chmod +x combined_artifacts/${{matrix.crate_name}}
-          strip --strip-all combined_artifacts/${{matrix.crate_name}}
-          
+                   
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: 'airtifacts'
           path: ./combined_artifacts/${{matrix.crate_name}}
   
-  # install-with-target-x86_64-unknown-linux-gnu:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #   strategy:
-  #    matrix:
-  #       crate_name:
-  #         - loco-cli
+  install-with-target-x86_64-unknown-linux-gnu:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+     matrix:
+        crate_name:
+          - loco-cli
+          - sea-orm-cli
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
-  #     - name: ${{matrix.crate_name}}
-  #       run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
+      # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
+      - name: ${{matrix.crate_name}}
+        run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
       
-  #     - name: Determine Crate Name
-  #       id: determine_crate_name
-  #       run: |
-  #         lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
-  #         if [ "$lowercase_crate_name" == "loco-cli" ]; then
-  #           echo "CRATE_NAME_ENV=loco" >> $GITHUB_ENV
-  #         #elif [ "$lowercase_crate_name" == "sqlx" ]; then
-  #         #  echo "CRATE_NAME_ENV=sqlx" >> $GITHUB_ENV
-  #         else
-  #           echo "CRATE_NAME_ENV=$lowercase_crate_name" >> $GITHUB_ENV
-  #         fi
+      - name: Determine Crate Name
+        id: determine_crate_name
+        run: |
+          lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
+          if [ "$lowercase_crate_name" == "loco-cli" ]; then
+            echo "CRATE_NAME_ENV=loco" >> $GITHUB_ENV
+          #elif [ "$lowercase_crate_name" == "sqlx" ]; then
+          #  echo "CRATE_NAME_ENV=sqlx" >> $GITHUB_ENV
+          else
+            echo "CRATE_NAME_ENV=$lowercase_crate_name" >> $GITHUB_ENV
+          fi
        
           
-  #     - name: Copy files
-  #       run: |
-  #         mkdir -p combined_artifacts
-  #         echo ${{ env.CRATE_NAME_ENV }}
-  #         cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
-  #         chmod +x combined_artifacts/${{ env.CRATE_NAME_ENV }}
-  #         strip --strip-all combined_artifacts/${{ env.CRATE_NAME_ENV }}
+      - name: Copy files
+        run: |
+          mkdir -p combined_artifacts
+          echo ${{ env.CRATE_NAME_ENV }}
+          cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
+                 
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'airtifacts'
+          path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
           
-  #     - name: Upload Combined Artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: 'airtifacts'
-  #         path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
   generate-tag-and-release:
     runs-on: ubuntu-latest
-    needs: [install-with-target-x86_64-unknown-linux-musl]
+    needs: [install-with-target-x86_64-unknown-linux-musl, install-with-target-x86_64-unknown-linux-gnu]
     permissions:
       contents: write
     steps:
@@ -117,6 +117,11 @@ jobs:
         with:
           name: 'airtifacts'
           path: ./combined_artifacts
+
+      - name: Make executable and strip
+        run: |
+          chmod +x combined_artifacts/*
+          strip --strip-all combined_artifacts/*
       
       - name: Bump version and push tag
         id: tag_version
@@ -131,5 +136,3 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-          
- 
