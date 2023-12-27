@@ -108,7 +108,7 @@ jobs:
   generate-tag:
     runs-on: ubuntu-latest
     # needs: [install-with-target-x86_64-unknown-linux-musl]
-    if: "contains(github.event.head_commit.message, 'deploy application')"
+    # if: "contains(github.event.head_commit.message, 'deploy application')"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
