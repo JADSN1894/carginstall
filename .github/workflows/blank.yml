@@ -42,9 +42,10 @@ jobs:
     strategy:
      matrix:
         crate_name:
-          #- icx-asset
+          - icx-asset
           - icx-cert
           #- icx-proxy
+    
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -52,7 +53,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Install with target x86_64-unknown-linux-musl
-        run: echo Hello, world!
+        run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-musl
   
   # This workflow contains a single job called "build"
   install-with-target-x86_64-unknown-linux-gnu:
@@ -64,9 +65,8 @@ jobs:
     strategy:
      matrix:
         crate_name:
-          #- icx-asset
           - loco-cli
-          #- icx-proxy
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -74,4 +74,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Install with target x86_64-unknown-linux-gnu
-        run: echo install-with-target-x86_64-unknown-linux-gnu
+        run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
