@@ -53,8 +53,8 @@ jobs:
         run: |
           mkdir -p combined_artifacts
           cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
-          chmod +x combined_artifacts/*
-          strip --strip-all combined_artifacts/*
+          chmod +x combined_artifacts/${{matrix.crate_name}}
+          strip --strip-all combined_artifacts/${{matrix.crate_name}}
           
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
@@ -96,8 +96,8 @@ jobs:
           mkdir -p combined_artifacts
           echo ${{ env.CRATE_NAME_ENV }}
           cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
-          chmod +x combined_artifacts/*
-          strip --strip-all combined_artifacts/*
+          chmod +x combined_artifacts/${{ env.CRATE_NAME_ENV }}
+          strip --strip-all combined_artifacts/${{ env.CRATE_NAME_ENV }}
           
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
