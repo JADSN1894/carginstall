@@ -19,9 +19,9 @@ jobs:
     strategy:
      matrix:
         crate_name:
-          # - icx-asset
+          - icx-asset
           - icx-cert
-          # - icx-proxy
+          - icx-proxy
     
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
      matrix:
         crate_name:
           - loco-cli
-          # - sea-orm-cli
+          - sea-orm-cli
 
     steps:
       - uses: actions/checkout@v4
