@@ -98,7 +98,7 @@ jobs:
           mkdir -p combined_artifacts
           # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
           if [ "${{ matrix.crate_name }}" == "loco-cli" ]; then
-            cp -rfv ~/.cargo/bin/loco combined_artifacts/loco combined_artifacts/loco
+            cp -rfv ~/.cargo/bin/loco combined_artifacts/loco
           else
             cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
           fi
