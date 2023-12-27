@@ -36,16 +36,16 @@ jobs:
 
       - name: Copy files
         run: |
-          mkdir -p combined_artifacts
-          cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
-          chmod +x combined_artifacts/${{matrix.crate_name}}
-          strip --strip-all combined_artifacts/${{matrix.crate_name}}
+          mkdir -p combined_artifacts_linux_musl
+          cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts_linux_musl/${{matrix.crate_name}}
+          chmod +x combined_artifacts_linux_musl/${{matrix.crate_name}}
+          strip --strip-all combined_artifacts_linux_musl/${{matrix.crate_name}}
                    
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: 'airtifacts-target-x86_64-unknown-linux-musl'
-          path: ./combined_artifacts/${{matrix.crate_name}}
+          path: ./combined_artifacts_linux_musl/${{matrix.crate_name}}
   
   linux-gnu:
     runs-on: ubuntu-latest
@@ -78,16 +78,16 @@ jobs:
                  
       - name: Copy files
         run: |
-          mkdir -p combined_artifacts
-          cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
-          chmod +x combined_artifacts/${{ env.CRATE_NAME_ENV }}
-          strip --strip-all combined_artifacts/${{ env.CRATE_NAME_ENV }}
+          mkdir -p combined_artifacts_linux_gnu
+          cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
+          chmod +x combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
+          strip --strip-all combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
                  
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: 'airtifacts-target-x86_64-unknown-linux-gnu'
-          path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
+          path: ./combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
           
   generate-tag-and-release:
     runs-on: ubuntu-latest
@@ -101,13 +101,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: 'airtifacts-target-x86_64-unknown-linux-musl'
-          path: ./combined_artifacts
+          path: ./combined_artifacts_linux_musl
 
       - name: Download linux-musl artifacts
         uses: actions/download-artifact@v4
         with:
           name: 'airtifacts-target-x86_64-unknown-linux-gnu'
-          path: ./combined_artifacts
+          path: ./combined_artifacts_linux_gnu
      
       - name: Bump version and push tag
         id: tag_version
@@ -118,7 +118,7 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./combined_artifacts/*"
+          artifacts: "./combined_artifacts_linux_musl/*, ./combined_artifacts_linux_gnu/*"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
