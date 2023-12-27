@@ -42,7 +42,7 @@ jobs:
     strategy:
      matrix:
         crate_name:
-          - icx-asset
+          #- icx-asset
           - icx-cert
           #- icx-proxy
     
@@ -96,7 +96,12 @@ jobs:
       - name: Copy files
         run: |
           mkdir -p combined_artifacts
-          cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
+          # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
+          if [ "${{ matrix.crate_name }}" == "loco-cli" ]; then
+            cp -rfv ~/.cargo/bin/loco combined_artifacts/loco combined_artifacts/loco
+          else
+            cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
+          fi
           
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
