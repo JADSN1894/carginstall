@@ -89,27 +89,32 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
       # Runs a single command using the runners shell
       - name: ${{matrix.crate_name}}
         run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
-
+      
+      - name: Determine Crate Name
+        id: determine_crate_name
+        run: |
+          lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
+          if [ "$lowercase_crate_name" == "loco-cli" ]; then
+            echo "loco"
+          #elif [ "$lowercase_crate_name" == "sqlx" ]; then
+          #  echo "sqlx"
+          else
+            echo "$lowercase_crate_name"
+          fi
+        env:
+          ARTIFACT_PATH: ${{ steps.determine_crate_name.outputs.stdout }}
+          
       - name: Copy files
         run: |
           mkdir -p combined_artifacts
-          # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
-          echo ${{ matrix.crate_name }}
-          lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
-          
-          if [ "$lowercase_crate_name" == "loco-cli" ]; then
-            cp -rfv ~/.cargo/bin/loco combined_artifacts/loco
-          #elif [ "$lowercase_crate_name" == "loco-cli" ]; then
-          #  cp -rfv ~/.cargo/bin/loco combined_artifacts/loco
-          else
-            cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
-          fi
-          
+          cp -rfv ~/.cargo/bin/${{ env.ARTIFACT_PATH }} combined_artifacts/${{ env.ARTIFACT_PATH }}
+
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: 'Combined Airtifacts'
-          path: ./combined_artifacts/${{matrix.crate_name}}
+          path: ./combined_artifacts/${{ env.ARTIFACT_PATH }}
