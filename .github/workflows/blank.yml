@@ -42,7 +42,7 @@ jobs:
           strip --strip-all combined_artifacts/${{matrix.crate_name}}
                    
       - name: Upload Combined Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: 'airtifacts'
           path: ./combined_artifacts/${{matrix.crate_name}}
@@ -55,7 +55,7 @@ jobs:
      matrix:
         crate_name:
           - loco-cli
-          - sea-orm-cli
+          # - sea-orm-cli
 
     steps:
       - uses: actions/checkout@v4
@@ -84,7 +84,7 @@ jobs:
           strip --strip-all combined_artifacts/${{ env.CRATE_NAME_ENV }}
                  
       - name: Upload Combined Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: 'airtifacts'
           path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download Combined Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'airtifacts'
           path: ./combined_artifacts
