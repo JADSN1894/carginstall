@@ -109,16 +109,38 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # if: "contains(github.event.head_commit.message, 'deploy application')"
     steps:
-      - uses: actions/checkout@v4
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+
+    - name: Generate Git Tag
+      id: generate_tag
+      run: |
+        VERSION_PREFIX="v"
+        VERSION_MAJOR_MINOR="1.0"
+        VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}.*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
+        if [ -z "$VERSION_PATCH" ]; then
+          VERSION_PATCH=0
+        else
+          VERSION_PATCH=$((VERSION_PATCH + 1))
+        fi
+        NEW_TAG="${VERSION_PREFIX}${VERSION_MAJOR_MINOR}.${VERSION_PATCH}"
+        echo "Generated new tag: $NEW_TAG"
+        echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+    - name: Push Git Tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+
+    - name: Set up Git
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@github.com"
+        git fetch --unshallow || true  # Fetch all commits if depth is 1
+        git fetch --tags  # Ensure that tags are available locally
