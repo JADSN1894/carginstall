@@ -16,27 +16,27 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # Add targets
-  pre-install:
-    runs-on: ubuntu-latest
+  # pre-install:
+  #   runs-on: ubuntu-latest
     
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+  #   # Steps represent a sequence of tasks that will be executed as part of the job
+  #   steps:
+  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+  #     - uses: actions/checkout@v4
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential musl-tools
-          rustup target add x86_64-unknown-linux-gnu
-          rustup target add x86_64-unknown-linux-musl
+  #     # Runs a set of commands using the runners shell
+  #     - name: Run a multi-line script
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y build-essential musl-tools
+  #         rustup target add x86_64-unknown-linux-gnu
+  #         rustup target add x86_64-unknown-linux-musl
   
   # This workflow contains a single job called "build"
   install-with-target-x86_64-unknown-linux-musl:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    needs: pre-install
+    # needs: pre-install
     permissions:
       contents: write
     strategy:
@@ -51,6 +51,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: pre-install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential musl-tools
+          rustup target add x86_64-unknown-linux-musl
+          
       # Runs a single command using the runners shell
       - name: Install with target x86_64-unknown-linux-musl
         run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-musl
@@ -59,7 +65,7 @@ jobs:
   install-with-target-x86_64-unknown-linux-gnu:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    needs: pre-install
+    # needs: pre-install
     permissions:
       contents: write
     strategy:
