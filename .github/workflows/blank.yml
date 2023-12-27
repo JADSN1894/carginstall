@@ -112,9 +112,11 @@ jobs:
           mkdir -p combined_artifacts
           echo ${{ env.CRATE_NAME_ENV }}
           cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
-
+          chmod +x combined_artifacts/*
+          strip --strip-all combined_artifacts/*
+          
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: 'Combined Airtifacts'
+          name: 'airtifacts'
           path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
