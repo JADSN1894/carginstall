@@ -58,8 +58,19 @@ jobs:
           rustup target add x86_64-unknown-linux-musl
           
       # Runs a single command using the runners shell
-      - name: Install with target x86_64-unknown-linux-musl
+      - name: ${{matrix.crate_name}}
         run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-musl
+
+      - name: Copy files
+        run: |
+          mkdir -p combined_artifacts
+          cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
+          
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'Combined Airtifacts'
+          path: ./combined_artifacts/${{matrix.crate_name}}
   
   # This workflow contains a single job called "build"
   install-with-target-x86_64-unknown-linux-gnu:
@@ -79,5 +90,16 @@ jobs:
       - uses: actions/checkout@v4
 
       # Runs a single command using the runners shell
-      - name: Install with target x86_64-unknown-linux-gnu
+      - name: ${{matrix.crate_name}}
         run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
+
+      - name: Copy files
+        run: |
+          mkdir -p combined_artifacts
+          cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
+          
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'Combined Airtifacts'
+          path: ./combined_artifacts/${{matrix.crate_name}}
