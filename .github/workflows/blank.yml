@@ -97,8 +97,13 @@ jobs:
         run: |
           mkdir -p combined_artifacts
           # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
-          if [ "${{ matrix.crate_name }}" == "loco-cli" ]; then
+          echo ${{ matrix.crate_name }}
+          lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
+          
+          if [ "$lowercase_crate_name" == "loco-cli" ]; then
             cp -rfv ~/.cargo/bin/loco combined_artifacts/loco
+          #elif [ "$lowercase_crate_name" == "loco-cli" ]; then
+          #  cp -rfv ~/.cargo/bin/loco combined_artifacts/loco
           else
             cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
           fi
