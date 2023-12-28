@@ -57,10 +57,7 @@ jobs:
         crate_name:
           - loco-cli
           - sea-orm-cli
-    outputs:
-      id: gnu
-      values: ${{ steps.determine_crate_name.outputs }}
-      
+       
     steps:
       - uses: actions/checkout@v4
 
