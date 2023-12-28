@@ -28,7 +28,9 @@ jobs:
 
       # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
       - name: ${{matrix.file_name}}
-        run: touch ./files/${{matrix.file_name}}
+        run: |
+          mkdir -p files
+          touch ./files/${{matrix.file_name}}
                  
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
