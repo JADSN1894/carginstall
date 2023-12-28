@@ -62,13 +62,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    strategy:
+      matrix:
+        file_name: ${{ needs.files_one.outputs.file_name }}, ${{ needs.files_two.outputs.file_name }}
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
-          name: '${{ needs.files_one.outputs.file_name }}'
+          name: '${{ matrix.file_name }}'
           path: ./files
 
       # - name: Read file_name from artifact
