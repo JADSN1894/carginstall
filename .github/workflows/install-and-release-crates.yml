@@ -50,9 +50,9 @@ jobs:
   
   linux-gnu:
     runs-on: ubuntu-latest
-    outputs:
-      id: gnu
-      value: ${{ steps.determine_crate_name.outputs }}
+    # outputs:
+    #   id: gnu
+    #   value: ${{ steps.determine_crate_name.outputs }}
     permissions:
       contents: write
     strategy:
@@ -113,11 +113,16 @@ jobs:
       - name: Debug - Outputs
         run: |
           echo "Outputs from linux-gnu: ${{ toJson(needs.linux-gnu.outputs) }}"
-  
+
+      - name: Parse outputs from linux-gnu
+        run: |
+          OUTPUTS_GNU=$(echo "${{ needs.linux-gnu.outputs.gnu }}" | fromJSON)
+          echo "Outputs from linux-gnu: $OUTPUTS_GNU"
+
       - name: Download linux-gnu artifacts
         uses: actions/download-artifact@v4
         with:
-          name: 'artifacts-target-x86_64-unknown-linux-gnu-${{ needs.linux-gnu.outputs.gnu.CRATE_NAME_ENV }}'
+          name: 'artifacts-target-x86_64-unknown-linux-gnu-${OUTPUTS_GNU.CRATE_NAME_ENV}'
           path: ./combined_artifacts_linux_gnu
      
       - name: Bump version and push tag
