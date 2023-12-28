@@ -20,12 +20,12 @@ jobs:
       - name: Touch file $FILE_NAME
         run: |
           mkdir -p files
-          touch ./files/$FILE_NAME
+          touch ./files/${{ env.FILE_NAME }}
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "artifact-$FILE_NAME"
-          path: ./files/$FILE_NAME
+          name: "artifact-${{ env.FILE_NAME }}"
+          path: ./files/${{ env.FILE_NAME }}
 
   files_two:
     runs-on: ubuntu-latest
@@ -36,12 +36,12 @@ jobs:
       - name: Touch file $FILE_NAME
         run: |
           mkdir -p files
-          touch ./files/$FILE_NAME
+          touch ./files/${{ env.FILE_NAME }}
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "artifact-$FILE_NAME"
-          path: ./files/$FILE_NAME
+          name: "artifact-${{ env.FILE_NAME }}"
+          path: ./files/${{ env.FILE_NAME }}
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
       - name: Download Combined Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: "artifact-$FILE_NAME"
+          name: "artifact-${{ env.FILE_NAME }}"
           path: ./files
       - name: Bump version and push tag
         id: tag_version
