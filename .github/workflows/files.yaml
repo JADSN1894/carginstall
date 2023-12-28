@@ -60,7 +60,7 @@ jobs:
     needs: [files_one, files_two]
     strategy:
       matrix:
-        file_name: ${{fromJson(needs.files_one.outputs.artifacts)['matrix']['file_name']}}
+        file_name: ${{fromJson(needs.files_one.outputs.artifacts).matrix.file_name}}
     steps:
       - uses: actions/checkout@v4
       - name: Download Combined Artifacts
