@@ -75,7 +75,10 @@ jobs:
         run: |
           echo "Contents of ./files directory:"
           ls -R ./files
-          echo "Value of file_name variable: ${{ steps.read_file_name.outputs.file_name }}"
+          echo "Files in files_one artifact:"
+          ls -R ./files/${{ needs.files_one.outputs.file_name }}
+          echo "Files in files_two artifact:"
+          ls -R ./files/${{ needs.files_two.outputs.file_name }}
     
       # - name: Read file_name from artifact
       #   id: read_file_name
