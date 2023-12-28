@@ -26,8 +26,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
-      - name: ${{matrix.file_name}}
+      - name: Touch file ${{matrix.file_name}}
+        run: |
+          mkdir -p files
+          touch ./files/${{matrix.file_name}}
+                 
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'artifact-${{matrix.file_name}}'
+          path: ./files/${{matrix.file_name}}
+
+  files_two:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+     matrix:
+        file_name:
+          - iop.txt
+          - klç.txt
+          - bnm.txt
+       
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Touch file ${{matrix.file_name}}
         run: |
           mkdir -p files
           touch ./files/${{matrix.file_name}}
