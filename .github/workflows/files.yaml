@@ -64,7 +64,9 @@ jobs:
       contents: write
     strategy:
       matrix:
-        file_name: ${{ needs.files_one.outputs.file_name }}, ${{ needs.files_two.outputs.file_name }}
+        file_name:
+          - ${{ needs.files_one.outputs.file_name }}
+          - ${{ needs.files_two.outputs.file_name }}
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
