@@ -71,6 +71,10 @@ jobs:
           name: '${{ needs.files_one.outputs.file_name }}'
           path: ./files
 
+      - name: Read file_name from artifact
+        id: read_file_name
+        run: echo "file_name=$(cat ./files/${{ needs.files_one.outputs.file_name }}/file_name.txt)" >> $GITHUB_ENV
+        
       - name: Debugging
         run: |
           echo "Contents of ./files directory:"
@@ -80,9 +84,6 @@ jobs:
           echo "Files in files_two artifact:"
           ls -R ./files/${{ needs.files_two.outputs.file_name }}
     
-      # - name: Read file_name from artifact
-      #   id: read_file_name
-      #   run: echo "file_name=$(cat ./files/${{ needs.files_one.outputs.file_name }}/file_name.txt)" >> $GITHUB_ENV
         
       - name: Bump version and push tag
         id: tag_version
