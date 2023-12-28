@@ -100,13 +100,13 @@ jobs:
       - name: Download linux-gnu artifacts
         uses: actions/download-artifact@v4
         with:
-          name: 'airtifacts-target-x86_64-unknown-linux-musl'
+          name: 'airtifacts-target-x86_64-unknown-linux-musl-${{ matrix.crate_name }}'
           path: ./combined_artifacts_linux_musl
 
       - name: Download linux-musl artifacts
         uses: actions/download-artifact@v4
         with:
-          name: 'airtifacts-target-x86_64-unknown-linux-gnu'
+          name: 'airtifacts-target-x86_64-unknown-linux-gnu-${{ env.CRATE_NAME_ENV }}'
           path: ./combined_artifacts_linux_gnu
      
       - name: Bump version and push tag
