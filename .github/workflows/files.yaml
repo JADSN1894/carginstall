@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux-gnu:
+  files_one:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,12 +28,12 @@ jobs:
 
       # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
       - name: ${{matrix.file_name}}
-        run: touch ${{matrix.file_name}}
+        run: touch ./files/${{matrix.file_name}}
                  
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: 'artifact-${{matrix.file_name}}'
-          path: ./combined_artifacts/${{matrix.file_name}}
+          path: ./files/${{matrix.file_name}}
           
 
