@@ -8,98 +8,71 @@ on:
   schedule:
     - cron: '59 23 28-31 * *'
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   files_one:
     runs-on: ubuntu-latest
-    
-    permissions:
-      contents: write
-    
+    outputs:
+      file_name: ${{ matrix.file_name }}
     strategy:
-     matrix:
+      matrix:
         file_name:
           - qwer.txt
           - asdf.txt
           - zxcv.txt
-    
-    outputs:
-      id: files_one
-      file_name: ${{ matrix.file_name }}    
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Touch file ${{matrix.file_name}}
+      - name: Touch file ${{ matrix.file_name }}
         run: |
           mkdir -p files
-          touch ./files/${{matrix.file_name}}
-                 
+          touch ./files/${{ matrix.file_name }}
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'artifact-${{matrix.file_name}}'
-          path: ./files/${{matrix.file_name}}
+          name: 'artifact-${{ matrix.file_name }}'
+          path: ./files/${{ matrix.file_name }}
 
   files_two:
     runs-on: ubuntu-latest
-   
-    permissions:
-      contents: write
-    
+    outputs:
+      file_name: ${{ matrix.file_name }}
     strategy:
-     matrix:
+      matrix:
         file_name:
           - iop.txt
           - klç.txt
           - bnm.txt
-   
-    outputs:
-      id: files_two
-      file_name: ${{ matrix.file_name }}
-    
     steps:
       - uses: actions/checkout@v4
-
-      - name: Touch file ${{matrix.file_name}}
+      - name: Touch file ${{ matrix.file_name }}
         run: |
           mkdir -p files
-          touch ./files/${{matrix.file_name}}
-                 
+          touch ./files/${{ matrix.file_name }}
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'artifact-${{matrix.file_name}}'
-          path: ./files/${{matrix.file_name}}
+          name: 'artifact-${{ matrix.file_name }}'
+          path: ./files/${{ matrix.file_name }}
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
     needs: [files_one, files_two]
-    
     strategy:
       matrix:
-        file_name: ${{fromJson(needs.files_one.outputs).file_name}}
-      
-    permissions:
-      contents: write
-    
+        file_name: ${{fromJson(needs.files_one.outputs)['file_name']}}
     steps:
       - uses: actions/checkout@v4
-
       - name: Download Combined Artifacts
         uses: actions/download-artifact@v4
         with:
           name: 'artifact-${{ matrix.file_name }}'
           path: ./files
-     
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
@@ -107,6 +80,3 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-    
-          
-
