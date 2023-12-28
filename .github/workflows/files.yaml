@@ -15,33 +15,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set file_name
-        run: echo "FILE_NAME=qwer.txt" >> $GITHUB_ENV
+        run: echo "qwer.txt" > file_name.txt
       - uses: actions/checkout@v4
-      - name: Touch file $FILE_NAME
+      - name: Touch file
         run: |
           mkdir -p files
-          touch ./files/${{ env.FILE_NAME }}
+          touch ./files/$(cat file_name.txt)
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "artifact-${{ env.FILE_NAME }}"
-          path: ./files/${{ env.FILE_NAME }}
+          name: "artifact-$(cat file_name.txt)"
+          path: ./files
 
   files_two:
     runs-on: ubuntu-latest
     steps:
       - name: Set file_name
-        run: echo "FILE_NAME=iop.txt" >> $GITHUB_ENV
+        run: echo "iop.txt" > file_name.txt
       - uses: actions/checkout@v4
-      - name: Touch file $FILE_NAME
+      - name: Touch file
         run: |
           mkdir -p files
-          touch ./files/${{ env.FILE_NAME }}
+          touch ./files/$(cat file_name.txt)
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "artifact-${{ env.FILE_NAME }}"
-          path: ./files/${{ env.FILE_NAME }}
+          name: "artifact-$(cat file_name.txt)"
+          path: ./files
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
@@ -49,10 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download Combined Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: "artifact-${{ env.FILE_NAME }}"
-          path: ./files
+        run: |
+          mkdir -p files
+          cp -R ${{ needs.files_one.outputs.artifact_path }}/* files/
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
