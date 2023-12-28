@@ -59,6 +59,8 @@ jobs:
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
