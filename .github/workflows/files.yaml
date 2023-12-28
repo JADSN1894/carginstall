@@ -31,7 +31,7 @@ jobs:
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ matrix.file_name }}'
+          name: 'artifact-files_one-${{ matrix.file_name }}'
           path: ./files/${{ matrix.file_name }}
 
   files_two:
@@ -55,7 +55,7 @@ jobs:
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ matrix.file_name }}'
+          name: 'artifact-files_two-${{ matrix.file_name }}'
           path: ./files/${{ matrix.file_name }}
 
   generate-tag-and-release:
@@ -65,15 +65,21 @@ jobs:
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
-      - name: Download Combined Artifacts
+      - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
-          name: '${{ needs.files_one.outputs.file_name }}'
+          name: 'artifact-files_one-${{ needs.files_one.outputs.file_name }}'
+          path: ./files
+    
+      - name: Download Artifacts from files_two
+        uses: actions/download-artifact@v4
+        with:
+          name: 'artifact-files_two-${{ needs.files_two.outputs.file_name }}'
           path: ./files
 
-      - name: Read file_name from artifact
-        id: read_file_name
-        run: echo "file_name=$(cat ./files/${{ needs.files_one.outputs.file_name }}/file_name.txt)" >> $GITHUB_ENV
+      # - name: Read file_name from artifact
+      #   id: read_file_name
+      #   run: echo "file_name=$(cat ./files/${{ needs.files_one.outputs.file_name }}/file_name.txt)" >> $GITHUB_ENV
         
       - name: Debugging
         run: |
