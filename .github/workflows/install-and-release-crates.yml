@@ -57,7 +57,10 @@ jobs:
         crate_name:
           - loco-cli
           - sea-orm-cli
-
+    outputs:
+      id: gnu
+      values: ${{ steps.determine_crate_name.outputs }}
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -94,21 +97,22 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [linux-musl, linux-gnu]
     needs: [linux-gnu]
+    
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Download linux-gnu artifacts
+      # - name: Download linux-musl artifacts
       #   uses: actions/download-artifact@v4
       #   with:
       #     name: 'airtifacts-target-x86_64-unknown-linux-musl'
       #     path: ./combined_artifacts_linux_musl
 
-      - name: Download linux-musl artifacts
+      - name: Download linux-gnu artifacts
         uses: actions/download-artifact@v4
         with:
-          name: 'airtifacts-target-x86_64-unknown-linux-gnu-${{ env.CRATE_NAME_ENV }}'
+          name: 'artifacts-target-x86_64-unknown-linux-gnu-${{ needs.linux-gnu.outputs.values.CRATE_NAME_ENV }}'
           path: ./combined_artifacts_linux_gnu
      
       - name: Bump version and push tag
