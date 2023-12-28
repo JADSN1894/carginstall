@@ -14,7 +14,9 @@ jobs:
   files_one:
     runs-on: ubuntu-latest
     outputs:
-      file_name: ${{ matrix.file_name }}
+        qwer: "qwer"
+        asdf: "asdf"
+        zxcv: "zxcv"
     strategy:
       matrix:
         file_name:
@@ -37,7 +39,9 @@ jobs:
   files_two:
     runs-on: ubuntu-latest
     outputs:
-      file_name: ${{ matrix.file_name }}
+        iop: "iop"
+        jkl: "jkl"
+        bnm: "bnm"
     strategy:
       matrix:
         file_name:
