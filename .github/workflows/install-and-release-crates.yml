@@ -50,16 +50,17 @@ jobs:
   
   linux-gnu:
     runs-on: ubuntu-latest
-    # outputs:
-    #   id: gnu
-    #   value: ${{ steps.determine_crate_name.outputs }}
+    outputs:
+      id: gnu
+      value: ${{ toJson(steps.determine_crate_name.outputs) }}
     permissions:
       contents: write
     strategy:
      matrix:
         crate_name:
-          - loco-cli
+          # - loco-cli
           # - sea-orm-cli
+          - just
        
     steps:
       - uses: actions/checkout@v4
@@ -112,29 +113,29 @@ jobs:
 
       - name: Debug - Outputs
         run: |
-          echo "Outputs from linux-gnu: ${{ toJson(needs.linux-gnu.outputs) }}"
+           run: echo "Outputs from linux-gnu: ${{ toJson(steps.determine_crate_name.outputs) }}"
 
-      - name: Parse outputs from linux-gnu
-        run: |
-          OUTPUTS_GNU=$(echo "${{ needs.linux-gnu.outputs.gnu }}" | fromJSON)
-          echo "Outputs from linux-gnu: $OUTPUTS_GNU"
+      # - name: Parse outputs from linux-gnu
+      #   run: |
+      #     OUTPUTS_GNU=$(echo "${{ needs.linux-gnu.outputs.gnu }}" | fromJSON)
+      #     echo "Outputs from linux-gnu: $OUTPUTS_GNU"
 
-      - name: Download linux-gnu artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: 'artifacts-target-x86_64-unknown-linux-gnu-${OUTPUTS_GNU.CRATE_NAME_ENV}'
-          path: ./combined_artifacts_linux_gnu
+      # - name: Download linux-gnu artifacts
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'artifacts-target-x86_64-unknown-linux-gnu-${OUTPUTS_GNU.CRATE_NAME_ENV}'
+      #     path: ./combined_artifacts_linux_gnu
      
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Bump version and push tag
+      #   id: tag_version
+      #   uses: mathieudutour/github-tag-action@v6.1
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "./combined_artifacts_linux_gnu/*"
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+      # - name: Create a GitHub release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     artifacts: "./combined_artifacts_linux_gnu/*"
+      #     tag: ${{ steps.tag_version.outputs.new_tag }}
+      #     name: ${{ steps.tag_version.outputs.new_tag }}
+      #     body: ${{ steps.tag_version.outputs.changelog }}
