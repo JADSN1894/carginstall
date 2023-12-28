@@ -70,9 +70,10 @@ jobs:
         with:
           name: 'artifact-${{ needs.files_one.outputs.file_name }}'
           path: ./files
-      # - name: Read file_name from artifact
-      #   id: read_file_name
-      #   run: echo "file_name=$(cat ./files/${{ needs.files_one.outputs.file_name }}/file_name.txt)" >> $GITHUB_ENV
+   
+      - name: Read file_name from artifact
+        id: read_file_name
+        run: echo "file_name=$(cat ./files/${{ needs.files_one.outputs.file_name }}/file_name.txt)" >> $GITHUB_ENV
         
       - name: Bump version and push tag
         id: tag_version
@@ -82,7 +83,8 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./files/*"
+          artifacts: |
+            ./files/${{ steps.read_file_name.outputs.file_name }}/*
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
