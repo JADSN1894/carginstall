@@ -21,7 +21,7 @@ jobs:
         crate_name:
           - icx-asset
           - icx-cert
-          - icx-proxy
+          # - icx-proxy
     
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'airtifacts-target-x86_64-unknown-linux-musl'
+          name: 'artifacts-target-x86_64-unknown-linux-musl-${{ matrix.crate_name }}'
           path: ./combined_artifacts_linux_musl/${{matrix.crate_name}}
   
   linux-gnu:
@@ -86,7 +86,7 @@ jobs:
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'airtifacts-target-x86_64-unknown-linux-gnu'
+          name: 'artifacts-target-x86_64-unknown-linux-gnu-${{ env.CRATE_NAME_ENV }}'
           path: ./combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
           
   generate-tag-and-release:
