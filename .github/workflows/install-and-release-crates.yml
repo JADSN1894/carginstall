@@ -50,13 +50,16 @@ jobs:
   
   linux-gnu:
     runs-on: ubuntu-latest
+    outputs:
+      id: gnu
+      value: ${{ steps.determine_crate_name.outputs }}
     permissions:
       contents: write
     strategy:
      matrix:
         crate_name:
           - loco-cli
-          - sea-orm-cli
+          # - sea-orm-cli
        
     steps:
       - uses: actions/checkout@v4
@@ -107,6 +110,10 @@ jobs:
       #     name: 'airtifacts-target-x86_64-unknown-linux-musl'
       #     path: ./combined_artifacts_linux_musl
 
+      - name: Debug - Outputs
+        run: |
+          echo "Outputs from linux-gnu: ${{ toJson(needs.linux-gnu.outputs) }}"
+  
       - name: Download linux-gnu artifacts
         uses: actions/download-artifact@v4
         with:
