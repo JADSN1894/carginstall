@@ -31,7 +31,7 @@ jobs:
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'artifact-${{ matrix.file_name }}'
+          name: '${{ matrix.file_name }}'
           path: ./files/${{ matrix.file_name }}
 
   files_two:
@@ -55,7 +55,7 @@ jobs:
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'artifact-${{ matrix.file_name }}'
+          name: '${{ matrix.file_name }}'
           path: ./files/${{ matrix.file_name }}
 
   generate-tag-and-release:
