@@ -92,13 +92,7 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: |
-            ./files/${{ steps.read_file_name.outputs.file_name }}/qwer.txt
-            ./files/${{ steps.read_file_name.outputs.file_name }}/asdf.txt
-            ./files/${{ steps.read_file_name.outputs.file_name }}/zxcv.txt
-            ./files/${{ steps.read_file_name.outputs.file_name }}/iop.txt
-            ./files/${{ steps.read_file_name.outputs.file_name }}/klç.txt
-            ./files/${{ steps.read_file_name.outputs.file_name }}/bnm.txt
+          artifacts: "./files/*"
             
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
