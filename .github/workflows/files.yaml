@@ -67,7 +67,7 @@ jobs:
     needs: [files_one, files_two]
     strategy:
       matrix:
-        file_name: ${{ needs.files_one.outputs.file_name }}
+        file_name: '${{ needs.files_one.outputs.file_name }}'
       
     permissions:
       contents: write
