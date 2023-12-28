@@ -12,130 +12,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  # linux-musl:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #   strategy:
-  #    matrix:
-  #       crate_name:
-  #         - icx-asset
-  #         - icx-cert
-  #         # - icx-proxy
-    
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: pre-install
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y build-essential musl-tools
-  #         rustup target add x86_64-unknown-linux-musl
-
-      
-  #     - name: ${{matrix.crate_name}}
-  #       run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-musl
-
-  #     - name: Copy files
-  #       run: |
-  #         mkdir -p combined_artifacts_linux_musl
-  #         cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts_linux_musl/${{matrix.crate_name}}
-  #         chmod +x combined_artifacts_linux_musl/${{matrix.crate_name}}
-  #         strip --strip-all combined_artifacts_linux_musl/${{matrix.crate_name}}
-                   
-  #     - name: Upload Combined Artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: 'artifacts-target-x86_64-unknown-linux-musl'
-  #         path: ./combined_artifacts_linux_musl/${{matrix.crate_name}}
-  
   linux-gnu:
     runs-on: ubuntu-latest
-    outputs:
-      id: gnu
-      value: ${{ toJson(steps.determine_crate_name.outputs) }}
     permissions:
       contents: write
     strategy:
      matrix:
-        crate_name:
-          # - loco-cli
-          # - sea-orm-cli
-          - just
+        file_name:
+          - qwer.txt
+          - asdf.txt
+          - zxcv.txt
        
     steps:
       - uses: actions/checkout@v4
 
       # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
-      - name: ${{matrix.crate_name}}
-        run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
-      
-      - name: Determine Crate Name
-        id: determine_crate_name
-        run: |
-          lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
-          if [ "$lowercase_crate_name" == "loco-cli" ]; then
-            echo "CRATE_NAME_ENV=loco" >> $GITHUB_ENV
-          #elif [ "$lowercase_crate_name" == "sqlx" ]; then
-          #  echo "CRATE_NAME_ENV=sqlx" >> $GITHUB_ENV
-          else
-            echo "CRATE_NAME_ENV=$lowercase_crate_name" >> $GITHUB_ENV
-          fi
-                 
-      - name: Copy files
-        run: |
-          mkdir -p combined_artifacts_linux_gnu
-          cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
-          chmod +x combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
-          strip --strip-all combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
+      - name: ${{matrix.file_name}}
+        run: touch ${{matrix.file_name}}
                  
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'artifacts-target-x86_64-unknown-linux-gnu-${{ env.CRATE_NAME_ENV }}'
-          path: ./combined_artifacts_linux_gnu/${{ env.CRATE_NAME_ENV }}
+          name: 'artifact-${{matrix.file_name}}'
+          path: ./combined_artifacts${{matrix.file_name}}
           
-  generate-tag-and-release:
-    runs-on: ubuntu-latest
-    needs: [linux-gnu]
-    outputs:
-      id: gnu
-      from: linux-gnu
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
 
-      # - name: Download linux-musl artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'airtifacts-target-x86_64-unknown-linux-musl'
-      #     path: ./combined_artifacts_linux_musl
-
-      - name: Debug - Outputs
-        run: |
-           run: echo "Outputs from linux-gnu: ${{ toJson(steps.determine_crate_name.outputs) }}"
-
-      # - name: Parse outputs from linux-gnu
-      #   run: |
-      #     OUTPUTS_GNU=$(echo "${{ needs.linux-gnu.outputs.gnu }}" | fromJSON)
-      #     echo "Outputs from linux-gnu: $OUTPUTS_GNU"
-
-      # - name: Download linux-gnu artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'artifacts-target-x86_64-unknown-linux-gnu-${OUTPUTS_GNU.CRATE_NAME_ENV}'
-      #     path: ./combined_artifacts_linux_gnu
-     
-      # - name: Bump version and push tag
-      #   id: tag_version
-      #   uses: mathieudutour/github-tag-action@v6.1
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      
-      # - name: Create a GitHub release
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     artifacts: "./combined_artifacts_linux_gnu/*"
-      #     tag: ${{ steps.tag_version.outputs.new_tag }}
-      #     name: ${{ steps.tag_version.outputs.new_tag }}
-      #     body: ${{ steps.tag_version.outputs.changelog }}
