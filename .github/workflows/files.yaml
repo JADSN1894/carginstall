@@ -91,7 +91,7 @@ jobs:
         run: |
           echo "Contents of ./files"
           ls -lha ./files
-          echo matrix.file_name[-1]
+          echo ${{matrix.file_name[-1]}}
         # if: matrix.file_name == matrix.file_name[-1]  # Run only for the last file in the matrix
               
       # - name: Bump version and push tag
