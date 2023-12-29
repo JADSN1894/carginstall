@@ -97,13 +97,13 @@ jobs:
 
       - name: Debug outputs
         run: |
-          echo "Tag version: ${{ steps.tag_version.outputs.tag_version }}"
+          echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
           echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
       
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "./files/*.txt"
-          tag: ${{ steps.tag_version.outputs.tag_version }}
-          name: ${{ steps.tag_version.outputs.tag_version }}
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
