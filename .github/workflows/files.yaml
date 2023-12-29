@@ -80,36 +80,25 @@ jobs:
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Debugging needs
-        run: |
-          echo ${{ matrix.file_name }}
-          echo ${{ needs.files_two.outputs.iop }}
           
       - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
-          name: '${{ needs.files_one.outputs.qwer  }}'
+          name: '${{ matrix.file_name }}'
           path: ./files
-      
-      # - name: Download Artifacts from files_two
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: '${{ needs.files_two.outputs.iop }}'
-      #     path: ./files/files_two
         
       - name: Debugging
         run: |
           echo "Contents of ./files/files_one directory:"
           ls -lha ./files
-        
              
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          
+        if: matrix.file_name == matrix.file_name[-1]  # Run only for the last file in the matrix
+        
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
@@ -117,3 +106,4 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
+        if: matrix.file_name == matrix.file_name[-1]  # Run only for the last file in the matrix
