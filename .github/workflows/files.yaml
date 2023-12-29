@@ -71,19 +71,63 @@ jobs:
       - name: Download artifacts
         id: download-artifacts
         run: |
-          if [[ "${{ matrix.file_name_one }}" != "" ]]; then
-            echo "Downloading artifacts from files_one job"
-            mkdir -p files
-            echo "${{ matrix.file_name_one }}" > ./files/${{ matrix.file_name_one }}
-            echo "file_name=${{ matrix.file_name_one }}" >> $GITHUB_ENV
-          fi
+          mkdir -p files
   
-          if [[ "${{ matrix.file_name_two }}" != "" ]]; then
-            echo "Downloading artifacts from files_two job"
-            mkdir -p files
-            echo "${{ matrix.file_name_two }}" > ./files/${{ matrix.file_name_two }}
-            echo "file_name=${{ matrix.file_name_two }}" >> $GITHUB_ENV
-          fi
+          # Download artifacts from files_one job
+          for file_name in ${{ matrix.file_name_one }}; do
+            echo "Downloading artifact from files_one job: $file_name"
+            cp "./files_one/$file_name" "./files/"
+          done
+  
+          # Download artifacts from files_two job
+          for file_name in ${{ matrix.file_name_two }}; do
+            echo "Downloading artifact from files_two job: $file_name"
+            cp "./files_two/$file_name" "./files/"
+          done
+
+      - name: Check total number of files
+        run: |
+          echo "TOTAL_FILES=$(ls files | wc -l)"
+          echo "TOTAL_FILES=$(ls files | wc -l)" >> $GITHUB_ENV
+
+      # - name: Bump version and push tag
+      #   id: tag_version
+      #   if: env.TOTAL_FILES == 6
+      #   uses: mathieudutour/github-tag-action@v6.1
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+  
+      # - name: Debug outputs
+      #   if: env.TOTAL_FILES == 6
+      #   run: |
+      #     echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
+      #     echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
+  
+      # - name: Create a GitHub release
+      #   if: env.TOTAL_FILES == 6
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     artifacts: "./files/*"
+      #     tag: ${{ steps.tag_version.outputs.new_tag }}
+      #     name: ${{ steps.tag_version.outputs.new_tag }}
+      #     body: ${{ steps.tag_version.outputs.changelog }}
+
+      # - name: Download artifacts
+      #   id: download-artifacts
+      #   run: |
+      #     if [[ "${{ matrix.file_name_one }}" != "" ]]; then
+      #       echo "Downloading artifacts from files_one job"
+      #       mkdir -p files
+      #       echo "${{ matrix.file_name_one }}" > ./files/${{ matrix.file_name_one }}
+      #       echo "file_name=${{ matrix.file_name_one }}" >> $GITHUB_ENV
+      #     fi
+  
+      #     if [[ "${{ matrix.file_name_two }}" != "" ]]; then
+      #       echo "Downloading artifacts from files_two job"
+      #       mkdir -p files
+      #       echo "${{ matrix.file_name_two }}" > ./files/${{ matrix.file_name_two }}
+      #       echo "file_name=${{ matrix.file_name_two }}" >> $GITHUB_ENV
+      #     fi
           
       # - name: Download airtifact 'qwer.txt'
       #   uses: actions/download-artifact@v4
@@ -127,24 +171,24 @@ jobs:
       #     name: 'bnm.txt'
       #     path: ./files
           
-      - name: Bump version and push tag
-        if: always()
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Bump version and push tag
+      #   if: always()
+      #   id: tag_version
+      #   uses: mathieudutour/github-tag-action@v6.1
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
        
-      - name: Debug outputs
-        if: always()
-        run: |
-          echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
-          echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
+      # - name: Debug outputs
+      #   if: always()
+      #   run: |
+      #     echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
+      #     echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
       
-      - name: Create a GitHub release
-        if: always()
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "./files/*"
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+      # - name: Create a GitHub release
+      #   if: always()
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     artifacts: "./files/*"
+      #     tag: ${{ steps.tag_version.outputs.new_tag }}
+      #     name: ${{ steps.tag_version.outputs.new_tag }}
+      #     body: ${{ steps.tag_version.outputs.changelog }}
