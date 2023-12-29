@@ -78,19 +78,19 @@ jobs:
 
       - name: Debugging needs
         run: |
-          echo ${{ needs.files_one.outputs.qwer.txt }}
-          echo ${{ needs.files_two.outputs.iop.txt }}
+          echo ${{ needs.files_one.outputs.qwer }}
+          echo ${{ needs.files_two.outputs.iop }}
           
       - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
-          name: '${{ needs.files_one.outputs.qwer.txt  }}'
+          name: '${{ needs.files_one.outputs.qwer  }}'
           path: ./files/files_one
       
       - name: Download Artifacts from files_two
         uses: actions/download-artifact@v4
         with:
-          name: '${{ needs.files_two.outputs.iop.txt }}'
+          name: '${{ needs.files_two.outputs.iop }}'
           path: ./files/files_two
         
       - name: Debugging
