@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
         iop: "iop"
-        jkl: "jkl"
+        klç: "klç"
         bnm: "bnm"
     strategy:
       matrix:
@@ -75,7 +75,12 @@ jobs:
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Debugging needs
+        run: |
+          echo ${{ needs.files_one.outputs.file_name }}
+          echo ${{ needs.files_two.outputs.file_name }}
+          
       - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
@@ -95,12 +100,11 @@ jobs:
       - name: Debugging
         run: |
           echo "Contents of ./files/files_one directory:"
-          ls -lha ./files/files_one
+          ls -lha ./files/files_one/
           
           echo "Contents of ./files/files_two directory:"
-          ls -lha ./files/files_two
-     
-        
+          ls -lha ./files/files_two/
+             
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
