@@ -95,10 +95,15 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Debug outputs
+        run: |
+          echo "Tag version: ${{ steps.tag_version.outputs.tag_version }}"
+          echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
+      
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "./files/*.txt"
-          tag: ${{ needs.bump-version.outputs.tag_version }}
-          name: ${{ needs.bump-version.outputs.tag_version }}
-          body: ${{ needs.bump-version.outputs.changelog }}
+          tag: ${{ steps.tag_version.outputs.tag_version }}
+          name: ${{ steps.tag_version.outputs.tag_version }}
+          body: ${{ steps.tag_version.outputs.changelog }}
