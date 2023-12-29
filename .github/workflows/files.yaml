@@ -89,7 +89,7 @@ jobs:
         
       - name: Debugging
         run: |
-          echo "Last filename: ${{matrix.file_name[-1]}}" 
+          echo "Last filename: ${{matrix.file_name.last}}" 
           echo "Contents of ./files"
           ls -lha ./files
         # if: matrix.file_name == matrix.file_name[-1]  # Run only for the last file in the matrix
