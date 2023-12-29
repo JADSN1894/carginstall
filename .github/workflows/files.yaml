@@ -27,8 +27,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Touch file ${{ matrix.file_name }}
         run: |
-          mkdir -p files
-          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
+          mkdir -p files/files_one
+          echo "${{ matrix.file_name }}" > ./files/files_one/${{ matrix.file_name }}
           echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
           
       - name: Upload Combined Artifacts
@@ -53,8 +53,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Touch file ${{ matrix.file_name }}
         run: |
-          mkdir -p files
-          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
+          mkdir -p files/files_two
+          echo "${{ matrix.file_name }}" > ./files/files_two/${{ matrix.file_name }}
           echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
 
       - name: Upload Combined Artifacts
