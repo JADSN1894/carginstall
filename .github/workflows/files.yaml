@@ -61,63 +61,87 @@ jobs:
       contents: write
       
     needs: [files_one, files_two]
+    strategy:
+      matrix:
+        file_name_one: [qwer.txt, asdf.txt, zxcv.txt]
+        file_name_two: [iop.txt, klç.txt, bnm.txt]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download airtifact 'qwer.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'qwer.txt'
-          path: ./files
+      - name: Download artifacts
+        id: download-artifacts
+        run: |
+          if [[ "${{ matrix.file_name_one }}" != "" ]]; then
+            echo "Downloading artifacts from files_one job"
+            mkdir -p files
+            echo "${{ matrix.file_name_one }}" > ./files/${{ matrix.file_name_one }}
+            echo "file_name=${{ matrix.file_name_one }}" >> $GITHUB_ENV
+          fi
+  
+          if [[ "${{ matrix.file_name_two }}" != "" ]]; then
+            echo "Downloading artifacts from files_two job"
+            mkdir -p files
+            echo "${{ matrix.file_name_two }}" > ./files/${{ matrix.file_name_two }}
+            echo "file_name=${{ matrix.file_name_two }}" >> $GITHUB_ENV
+          fi
+          
+      # - name: Download airtifact 'qwer.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'qwer.txt'
+      #     path: ./files
 
-      - name: Download airtifact 'asdf.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'asdf.txt'
-          path: ./files
+      # - name: Download airtifact 'asdf.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'asdf.txt'
+      #     path: ./files
 
-      - name: Download airtifact 'zxcv.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'zxcv.txt'
-          path: ./files
+      # - name: Download airtifact 'zxcv.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'zxcv.txt'
+      #     path: ./files
 
-      - name: Download airtifact 'zxcv.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'zxcv.txt'
-          path: ./files
+      # - name: Download airtifact 'zxcv.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'zxcv.txt'
+      #     path: ./files
 
-      - name: Download airtifact 'iop.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'iop.txt'
-          path: ./files
+      # - name: Download airtifact 'iop.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'iop.txt'
+      #     path: ./files
 
-      - name: Download airtifact 'klç.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'klç.txt'
-          path: ./files
+      # - name: Download airtifact 'klç.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'klç.txt'
+      #     path: ./files
 
-      - name: Download airtifact 'bnm.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'bnm.txt'
-          path: ./files
+      # - name: Download airtifact 'bnm.txt'
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: 'bnm.txt'
+      #     path: ./files
           
       - name: Bump version and push tag
+        if: always()
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
        
       - name: Debug outputs
+        if: always()
         run: |
           echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
           echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
       
       - name: Create a GitHub release
+        if: always()
         uses: ncipollo/release-action@v1
         with:
           artifacts: "./files/*"
