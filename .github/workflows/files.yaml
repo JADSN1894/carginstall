@@ -84,6 +84,8 @@ jobs:
 
   bump-version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: download-artifacts
     steps:
       - name: Bump version and push tag
