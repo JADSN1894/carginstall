@@ -84,6 +84,9 @@ jobs:
 
   bump-version:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./files
     permissions:
       contents: write
     needs: download-artifacts
@@ -99,7 +102,6 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
        
       - name: Debug outputs
         run: |
