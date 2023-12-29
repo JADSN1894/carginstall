@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: '${{ matrix.file_name }}'
-          path: ./files/${{ matrix.file_name }}
+          path: ./files
 
   files_two:
     runs-on: ubuntu-latest
@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: '${{ matrix.file_name }}'
-          path: ./files/${{ matrix.file_name }}
+          path: ./files
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
@@ -89,9 +89,10 @@ jobs:
         
       - name: Debugging
         run: |
-          echo "Contents of ./files/files_one directory:"
+          echo "Contents of ./files"
           ls -lha ./files
-             
+        if: matrix.file_name == matrix.file_name[-1]  # Run only for the last file in the matrix
+              
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
