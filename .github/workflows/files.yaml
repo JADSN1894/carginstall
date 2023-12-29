@@ -30,11 +30,12 @@ jobs:
           mkdir -p files
           echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
           echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
+          
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
-        with:
+         with:
           name: '${{ matrix.file_name }}'
-          path: ./files
+          path: ./files/${{ matrix.file_name }}
 
   files_two:
     runs-on: ubuntu-latest
@@ -60,25 +61,32 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: '${{ matrix.file_name }}'
-          path: ./files
+          path: ./files/${{ matrix.file_name }}
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    strategy:
-      matrix:
-        file_name:
-          - ${{ needs.files_one.outputs.file_name }}
-          - ${{ needs.files_two.outputs.file_name }}
+    # strategy:
+    #   matrix:
+    #     file_name:
+    #       - ${{ needs.files_one.outputs.file_name }}
+    #       - ${{ needs.files_two.outputs.file_name }}
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
+      
       - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
-          name: '${{ matrix.file_name }}'
-          path: ./files
+          name: '${{ needs.files_one.outputs.file_name }}'
+          path: ./files_one
+      
+      - name: Download Artifacts from files_two
+        uses: actions/download-artifact@v4
+        with:
+          name: '${{ needs.files_two.outputs.file_name }}'
+          path: ./files_two
 
       # - name: Read file_name from artifact
       #   id: read_file_name
@@ -87,11 +95,12 @@ jobs:
       - name: Debugging
         run: |
           echo "Contents of ./files directory:"
-          ls -R ./files
-          echo "Files in files_one artifact:"
-          ls -R ./files/${{ needs.files_one.outputs.file_name }}
-          echo "Files in files_two artifact:"
-          ls -R ./files/${{ needs.files_two.outputs.file_name }}
+          ls -R ./files/files_one
+          ls -R ./files/files_two
+          # echo "Files in files_one artifact:"
+          # ls -R ./files/${{ needs.files_one.outputs.file_name }}
+          # echo "Files in files_two artifact:"
+          # ls -R ./files/${{ needs.files_two.outputs.file_name }}
     
         
       - name: Bump version and push tag
@@ -102,7 +111,7 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./files/*"
+           artifacts: "./files_one/*, ./files_two/*"
             
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
