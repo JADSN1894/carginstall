@@ -13,10 +13,10 @@ on:
 jobs:
   files_one:
     runs-on: ubuntu-latest
-    outputs:
-        qwer: "qwer.txt"
-        asdf: "asdf.txt"
-        zxcv: "zxcv.txt"
+    # outputs:
+    #     qwer: "qwer.txt"
+    #     asdf: "asdf.txt"
+    #     zxcv: "zxcv.txt"
     strategy:
       matrix:
         file_name:
@@ -27,22 +27,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Touch file ${{ matrix.file_name }}
         run: |
-          mkdir -p files/files_one
-          echo "${{ matrix.file_name }}" > ./files/files_one/${{ matrix.file_name }}
-          echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
+          mkdir -p files
+          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
+          # echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
           
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: '${{ matrix.file_name }}'
-          path: ./files/files_one/${{ matrix.file_name }}
+          path: ./files/${{ matrix.file_name }}
 
   files_two:
     runs-on: ubuntu-latest
-    outputs:
-        iop: "iop.txt"
-        klç: "klç.txt"
-        bnm: "bnm.txt"
+    # outputs:
+    #     iop: "iop.txt"
+    #     klç: "klç.txt"
+    #     bnm: "bnm.txt"
     strategy:
       matrix:
         file_name:
@@ -53,53 +53,56 @@ jobs:
       - uses: actions/checkout@v4
       - name: Touch file ${{ matrix.file_name }}
         run: |
-          mkdir -p files/files_two
-          echo "${{ matrix.file_name }}" > ./files/files_two/${{ matrix.file_name }}
+          mkdir -p files
+          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
           echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
 
       - name: Upload Combined Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: '${{ matrix.file_name }}'
-          path: ./files/files_two/${{ matrix.file_name }}
+          path: ./files/${{ matrix.file_name }}
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # strategy:
-    #   matrix:
-    #     file_name:
-    #       - ${{ needs.files_one.outputs.file_name }}
-    #       - ${{ needs.files_two.outputs.file_name }}
+    strategy:
+      matrix:
+        file_name:
+          - qwer.txt
+          - asdf.txt
+          - zxcv.txt
+          - iop.txt
+          - klç.txt
+          - bnm.txt
+          
     needs: [files_one, files_two]
     steps:
       - uses: actions/checkout@v4
 
       - name: Debugging needs
         run: |
-          echo ${{ needs.files_one.outputs.qwer }}
+          echo ${{ matrix.file_name }}
           echo ${{ needs.files_two.outputs.iop }}
           
       - name: Download Artifacts from files_one
         uses: actions/download-artifact@v4
         with:
           name: '${{ needs.files_one.outputs.qwer  }}'
-          path: ./files/files_one
+          path: ./files
       
-      - name: Download Artifacts from files_two
-        uses: actions/download-artifact@v4
-        with:
-          name: '${{ needs.files_two.outputs.iop }}'
-          path: ./files/files_two
+      # - name: Download Artifacts from files_two
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: '${{ needs.files_two.outputs.iop }}'
+      #     path: ./files/files_two
         
       - name: Debugging
         run: |
           echo "Contents of ./files/files_one directory:"
-          ls -lha ./files/files_one/
-          
-          echo "Contents of ./files/files_two directory:"
-          ls -lha ./files/files_two/
+          ls -lha ./files
+        
              
       - name: Bump version and push tag
         id: tag_version
@@ -110,7 +113,7 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./files/files_one/*.txt, ./files/files_two/*.txt"
+          artifacts: "./files/*.txt"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
