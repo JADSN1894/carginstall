@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: '${{ matrix.file_name }}'
-          path: ./files/file_two/${{ matrix.file_name }}
+          path: ./files/files_two/${{ matrix.file_name }}
 
   generate-tag-and-release:
     runs-on: ubuntu-latest
@@ -94,14 +94,12 @@ jobs:
         
       - name: Debugging
         run: |
-          echo "Contents of ./files directory:"
-          ls -R ./files/files_one
-          ls -R ./files/files_two
-          # echo "Files in files_one artifact:"
-          # ls -R ./files/${{ needs.files_one.outputs.file_name }}
-          # echo "Files in files_two artifact:"
-          # ls -R ./files/${{ needs.files_two.outputs.file_name }}
-    
+          echo "Contents of ./files/files_one directory:"
+          ls -lha ./files/files_one
+          
+          echo "Contents of ./files/files_two directory:"
+          ls -lha ./files/files_two
+     
         
       - name: Bump version and push tag
         id: tag_version
@@ -111,7 +109,7 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./files/files_one/*, ./files/files_two/*"
+          artifacts: "./files/files_one/*.txt, ./files/files_two/*.txt"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
