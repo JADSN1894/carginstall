@@ -61,10 +61,7 @@ jobs:
       contents: write
       
     needs: [files_one, files_two]
-    strategy:
-      matrix:
-        file_name_one: [qwer.txt, asdf.txt, zxcv.txt]
-        file_name_two: [iop.txt, klç.txt, bnm.txt]
+   
     steps:
       - uses: actions/checkout@v4
   
