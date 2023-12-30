@@ -75,94 +75,66 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download artifacts for ${{ matrix.file_name }}
+      - name: Download airtifact 'qwer.txt'
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.file_name }}
+          name: 'qwer.txt'
           path: ./files
 
-      - name: Bump version and push tag (once)
-        if: matrix.file_name == 'qwer.txt'  # You can choose any file name for this condition
+      - name: Download airtifact 'asdf.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'asdf.txt'
+          path: ./files
+
+      - name: Download airtifact 'zxcv.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'zxcv.txt'
+          path: ./files
+
+      - name: Download airtifact 'zxcv.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'zxcv.txt'
+          path: ./files
+
+      - name: Download airtifact 'iop.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'iop.txt'
+          path: ./files
+
+      - name: Download airtifact 'klç.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'klç.txt'
+          path: ./files
+
+      - name: Download airtifact 'bnm.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'bnm.txt'
+          path: ./files
+          
+      - name: Bump version and push tag
+        if: always()
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Debug outputs (once)
-        if: matrix.file_name == 'qwer.txt'  # This condition ensures it runs only once
+       
+      - name: Debug outputs
+        if: always()
         run: |
           echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
           echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
-
-      - name: Create a GitHub release (once)
-        if: matrix.file_name == 'qwer.txt'  # This condition ensures it runs only once
+      
+      - name: Create a GitHub release
+        if: always()
         uses: ncipollo/release-action@v1
         with:
           artifacts: "./files/*"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-          
-      # - name: Download airtifact 'qwer.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'qwer.txt'
-      #     path: ./files
-
-      # - name: Download airtifact 'asdf.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'asdf.txt'
-      #     path: ./files
-
-      # - name: Download airtifact 'zxcv.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'zxcv.txt'
-      #     path: ./files
-
-      # - name: Download airtifact 'zxcv.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'zxcv.txt'
-      #     path: ./files
-
-      # - name: Download airtifact 'iop.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'iop.txt'
-      #     path: ./files
-
-      # - name: Download airtifact 'klç.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'klç.txt'
-      #     path: ./files
-
-      # - name: Download airtifact 'bnm.txt'
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: 'bnm.txt'
-      #     path: ./files
-          
-      # - name: Bump version and push tag
-      #   if: always()
-      #   id: tag_version
-      #   uses: mathieudutour/github-tag-action@v6.1
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-       
-      # - name: Debug outputs
-      #   if: always()
-      #   run: |
-      #     echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
-      #     echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
-      
-      # - name: Create a GitHub release
-      #   if: always()
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     artifacts: "./files/*"
-      #     tag: ${{ steps.tag_version.outputs.new_tag }}
-      #     name: ${{ steps.tag_version.outputs.new_tag }}
-      #     body: ${{ steps.tag_version.outputs.changelog }}
