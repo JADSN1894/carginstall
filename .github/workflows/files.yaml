@@ -8,133 +8,129 @@ on:
   schedule:
     - cron: '59 23 28-31 * *'
 
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  files_one:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        file_name:
-          - qwer.txt
-          - asdf.txt
-          - zxcv.txt
-    steps:
-      - uses: actions/checkout@v4
-      - name: Touch file ${{ matrix.file_name }}
-        run: |
-          mkdir -p files
-          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
-          # echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
-          
-      - name: Upload Combined Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: '${{ matrix.file_name }}'
-          path: ./files
-
-  files_two:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        file_name:
-          - iop.txt
-          - klç.txt
-          - bnm.txt
-    steps:
-      - uses: actions/checkout@v4
-      - name: Touch file ${{ matrix.file_name }}
-        run: |
-          mkdir -p files
-          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
-          # echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
-
-      - name: Upload Combined Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: '${{ matrix.file_name }}'
-          path: ./files
-        
-  bump-version:
+  install-with-target-x86_64-unknown-linux-musl:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     strategy:
-      matrix:
-        file_name:
-          - qwer.txt
-          - asdf.txt
-          - zxcv.txt
-          - iop.txt
-          - klç.txt
-          - bnm.txt
+     matrix:
+        crate_name:
+          - icx-asset
+          - icx-cert
+          # - icx-proxy
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: pre-install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential musl-tools
+          rustup target add x86_64-unknown-linux-musl
           
-    needs: [files_one, files_two]
-   
+      - name: ${{matrix.crate_name}}
+        run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-musl
+
+      - name: Copy files
+        run: |
+          mkdir -p combined_artifacts
+          cp -rfv ~/.cargo/bin/${{matrix.crate_name}} combined_artifacts/${{matrix.crate_name}}
+          chmod +x combined_artifacts/${{matrix.crate_name}}
+          strip --strip-all combined_artifacts/${{matrix.crate_name}}
+                   
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.crate_name}}'
+          path: ./combined_artifacts/${{matrix.crate_name}}
+  
+  install-with-target-x86_64-unknown-linux-gnu:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+     matrix:
+        crate_name:
+          - loco-cli
+          - sea-orm-cli
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download airtifact 'qwer.txt'
-        uses: actions/download-artifact@v4
+      # Wait to close the issue: https://github.com/rust-lang/cargo/issues/12366
+      - name: ${{matrix.crate_name}}
+        run: cargo install ${{matrix.crate_name}} --target x86_64-unknown-linux-gnu
+      
+      - name: Determine Crate Name
+        id: determine_crate_name
+        run: |
+          lowercase_crate_name=$(echo "${{ matrix.crate_name }}" | tr '[:upper:]' '[:lower:]')
+          if [ "$lowercase_crate_name" == "loco-cli" ]; then
+            echo "CRATE_NAME_ENV=loco" >> $GITHUB_ENV
+          #elif [ "$lowercase_crate_name" == "sqlx" ]; then
+          #  echo "CRATE_NAME_ENV=sqlx" >> $GITHUB_ENV
+          else
+            echo "CRATE_NAME_ENV=$lowercase_crate_name" >> $GITHUB_ENV
+          fi
+                 
+      - name: Copy files
+        run: |
+          mkdir -p combined_artifacts
+          cp -rfv ~/.cargo/bin/${{ env.CRATE_NAME_ENV }} combined_artifacts/${{ env.CRATE_NAME_ENV }}
+          chmod +x combined_artifacts/${{ env.CRATE_NAME_ENV }}
+          strip --strip-all combined_artifacts/${{ env.CRATE_NAME_ENV }}
+                 
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: 'qwer.txt'
-          path: ./files
-
-      - name: Download airtifact 'asdf.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'asdf.txt'
-          path: ./files
-
-      - name: Download airtifact 'zxcv.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'zxcv.txt'
-          path: ./files
-
-      - name: Download airtifact 'zxcv.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'zxcv.txt'
-          path: ./files
-
-      - name: Download airtifact 'iop.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'iop.txt'
-          path: ./files
-
-      - name: Download airtifact 'klç.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'klç.txt'
-          path: ./files
-
-      - name: Download airtifact 'bnm.txt'
-        uses: actions/download-artifact@v4
-        with:
-          name: 'bnm.txt'
-          path: ./files
+          name: '${{matrix.crate_name}}'
+          path: ./combined_artifacts/${{ env.CRATE_NAME_ENV }}
           
+  generate-tag-and-release:
+    runs-on: ubuntu-latest
+    needs: [install-with-target-x86_64-unknown-linux-musl, install-with-target-x86_64-unknown-linux-gnu]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Combined Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: 'icx-asset'
+          path: ./combined_artifacts
+
+      - name: Download Combined Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: 'icx-cert'
+          path: ./combined_artifacts
+
+      - name: Download Combined Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: 'loco-cli'
+          path: ./combined_artifacts
+
+      - name: Download Combined Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: 'sea-orm-cli'
+          path: ./combined_artifacts
+               
       - name: Bump version and push tag
-        if: always()
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-       
-      - name: Debug outputs
-        if: always()
-        run: |
-          echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
-          echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
       
       - name: Create a GitHub release
-        if: always()
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./files/*"
+          artifacts: "./combined_artifacts/*"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
