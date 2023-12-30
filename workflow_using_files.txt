@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '59 23 28-31 * *'
+
+  workflow_dispatch:
+
+jobs:
+  files_one:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file_name:
+          - qwer.txt
+          - asdf.txt
+          - zxcv.txt
+    steps:
+      - uses: actions/checkout@v4
+      - name: Touch file ${{ matrix.file_name }}
+        run: |
+          mkdir -p files
+          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
+          # echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
+          
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{ matrix.file_name }}'
+          path: ./files
+
+  files_two:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file_name:
+          - iop.txt
+          - klç.txt
+          - bnm.txt
+    steps:
+      - uses: actions/checkout@v4
+      - name: Touch file ${{ matrix.file_name }}
+        run: |
+          mkdir -p files
+          echo "${{ matrix.file_name }}" > ./files/${{ matrix.file_name }}
+          # echo "file_name=${{ matrix.file_name }}" >> $GITHUB_ENV
+
+      - name: Upload Combined Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{ matrix.file_name }}'
+          path: ./files
+        
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        file_name:
+          - qwer.txt
+          - asdf.txt
+          - zxcv.txt
+          - iop.txt
+          - klç.txt
+          - bnm.txt
+          
+    needs: [files_one, files_two]
+   
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download airtifact 'qwer.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'qwer.txt'
+          path: ./files
+
+      - name: Download airtifact 'asdf.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'asdf.txt'
+          path: ./files
+
+      - name: Download airtifact 'zxcv.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'zxcv.txt'
+          path: ./files
+
+      - name: Download airtifact 'zxcv.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'zxcv.txt'
+          path: ./files
+
+      - name: Download airtifact 'iop.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'iop.txt'
+          path: ./files
+
+      - name: Download airtifact 'klç.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'klç.txt'
+          path: ./files
+
+      - name: Download airtifact 'bnm.txt'
+        uses: actions/download-artifact@v4
+        with:
+          name: 'bnm.txt'
+          path: ./files
+          
+      - name: Bump version and push tag
+        if: always()
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+       
+      - name: Debug outputs
+        if: always()
+        run: |
+          echo "Tag version: ${{ steps.tag_version.outputs.new_tag }}"
+          echo "Changelog: ${{ steps.tag_version.outputs.changelog }}"
+      
+      - name: Create a GitHub release
+        if: always()
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./files/*"
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
