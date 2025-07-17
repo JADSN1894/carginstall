@@ -19,16 +19,14 @@ jobs:
     strategy:
      matrix:
         crate_name:
-          - icx-asset
-          - icx-cert
-          # - icx-proxy
+          - cargo-component
     
     steps:
       - uses: actions/checkout@v4
       - name: pre-install
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential musl-tools
+          sudo apt-get install -y build-essential musl-tools musl-dev
           rustup target add x86_64-unknown-linux-musl
           
       - name: ${{matrix.crate_name}}
@@ -100,13 +98,7 @@ jobs:
       - name: Download Combined Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: 'icx-asset'
-          path: ./combined_artifacts
-
-      - name: Download Combined Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: 'icx-cert'
+          name: 'cargo-component'
           path: ./combined_artifacts
 
       - name: Download Combined Artifacts
